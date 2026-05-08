@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Lấy Key - Premium</title>
+    <script src="https://cloudflare.com"></script>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #00d2ff; --secondary: #3a7bd5; --dark: #121212; }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--dark); color: white; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); width: 350px; }
+        h2 { margin-bottom: 20px; font-weight: 600; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .key-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; font-size: 28px; font-weight: bold; color: var(--primary); letter-spacing: 3px; border: 1px solid var(--primary); margin: 20px 0; position: relative; cursor: pointer; transition: 0.3s; }
+        .key-box:hover { background: rgba(0, 210, 255, 0.1); }
+        .btn-copy { background: linear-gradient(to right, var(--primary), var(--secondary)); border: none; padding: 10px 25px; border-radius: 25px; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn-copy:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4); }
+        .footer { font-size: 12px; margin-top: 20px; opacity: 0.6; }
+        #notification { visibility: hidden; background-color: #4caf50; color: white; text-align: center; border-radius: 5px; padding: 10px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1; }
+        #notification.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>YOUR DAILY KEY</h2>
+        <p style="font-size: 14px; opacity: 0.8;">Nhấp vào mã để sao chép</p>
+        <div class="key-box" id="keyDisplay" onclick="copyKey()">ĐANG TẠO...</div>
+        <button class="btn-copy" onclick="copyKey()">COPY KEY</button>
+        <div class="footer">Key tự động thay đổi sau 24h</div>
+    </div>
+
+    <div id="notification">Đã sao chép mã Key!</div>
+
+    <script>
+        function generateKey() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const display = document.getElementById('keyDisplay');
+
+            if (id) {
+                const today = new Date().toISOString().slice(0, 10);
+                // Thuật toán: MD5(ID + Ngày) - Lấy 8 ký tự cuối
+                const hash = CryptoJS.MD5(id + today).toString().toUpperCase();
+                const finalKey = hash.slice(-8);
+                display.innerText = finalKey;
+            } else {
+                display.innerText = "NO ID";
+                display.style.color = "#ff4b2b";
+                display.style.borderColor = "#ff4b2b";
+            }
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById('keyDisplay').innerText;
+            if (keyText === "NO ID" || keyText === "ĐANG TẠO...") return;
+            
+            navigator.clipboard.writeText(keyText);
+            const noti = document.getElementById('notification');
+            noti.className = "show";
+            setTimeout(() => { noti.className = noti.className.replace("show", ""); }, 3000);
+        }
+
+        window.onload = generateKey;
+    </script>
+</body>
+  </html>
+  
